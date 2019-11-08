@@ -128,6 +128,7 @@ for p in parameters.keys():
     print(str(p).ljust(10, ' '), '%0.5f' % float(sensitivity[p]))
 
 if '-p' in sys.argv:
+    from sympy.plotting import plot
     
     # Get parameter to be plotted from argument
     arg_index = sys.argv.index('-p')
@@ -142,10 +143,10 @@ if '-p' in sys.argv:
     try:
         plot(f, xlim=(0, 1), ylim=(0, 1))
     except:
-        print("Error while executing plot3d_parametric_surface")
+        print("Error while executing sympy.plotting.plot")
 
 if '-s' in sys.argv:
-    from sympy.plotting import plot, plot3d_parametric_surface
+    from sympy.plotting import plot3d_parametric_surface
 
     # Get the two parameters to be plotted from arguments
     arg_index = sys.argv.index('-s')
@@ -160,7 +161,7 @@ if '-s' in sys.argv:
     try:
         plot3d_parametric_surface(p1, p2, f, (p1, 0, 1), (p2, 0, 1))
     except:
-        print("Error while executing plot3d_parametric_surface")
+        print("Error while executing sympy.plotting.plot3d_parametric_surface")
 
 
 if '-b' in sys.argv:
