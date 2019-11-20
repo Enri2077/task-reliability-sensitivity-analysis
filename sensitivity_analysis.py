@@ -16,7 +16,9 @@ from collections import defaultdict
 if '-h' in sys.argv:
     print(  "Optional arguments:\n"
             "   -p x        plot graph of task success probability for parameter x\n"
-            "   -s x1 x2    plot 2D graph of task success probability for parameters x1, x2\n"
+            "   -g x1 x2    plot 2D graph of task success probability for parameters x1, x2\n"
+            "   -s          plot sensitivity of task success probability from all parameters\n"
+            "   -a          plot absolute value of sensitivity of task success probability from all parameters\n"
             "   -b          plot task success probability for all reaching states\n"
             )
     sys.exit(0)
@@ -55,6 +57,16 @@ outcome_prob['GP']['F3'] = p_GP_F3
 outcome_prob['GG']['S']  = .9*(1 - p_GG_F2)
 outcome_prob['GG']['F1'] = .1*(1 - p_GG_F2)
 outcome_prob['GG']['F2'] = p_GG_F2
+
+values = list()
+for f, outcomes in outcome_prob.items():
+    for o, p in outcomes.items():
+        try:
+            print(f, o, float(p.subs(parameters)))
+        except:
+            print(f, o, p)
+
+print(values)
 
 # Build the Markov chain graph m and the parametric transition matrix P
 N = 22
@@ -133,7 +145,7 @@ h_i = h[x_i]
 sensitivity = dict()
 for p in parameters.keys():
     sensitivity[p] = diff(h_i, p).subs(parameters)
-    print(str(p).ljust(10, ' '), '%0.5f' % float(sensitivity[p]))
+    print(str(p).ljust(10, ' '), '%0.5f\t%0.5f' % (float(sensitivity[p]), np.abs(float(sensitivity[p]))))
 
 if '-p' in sys.argv:
     from sympy.plotting import plot
@@ -153,7 +165,7 @@ if '-p' in sys.argv:
     except:
         print("Error while executing sympy.plotting.plot")
 
-if '-s' in sys.argv:
+if '-g' in sys.argv:
     from sympy.plotting import plot3d_parametric_surface
 
     # Get the two parameters to be plotted from arguments
@@ -172,20 +184,60 @@ if '-s' in sys.argv:
         print("Error while executing sympy.plotting.plot3d_parametric_surface")
 
 
+if '-s' in sys.argv:
+    # plot results
+    import matplotlib.pyplot as plt
+
+    objects = list(map(str, sensitivity.keys()))
+    values = list(map(float, sensitivity.values()))
+    y_pos = np.arange(len(objects))
+
+    try:
+        plt.bar(y_pos, values, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('Sensitivity')
+        plt.title('Parameter')
+        plt.ylim(0.9*np.min(values), 1.)
+
+        plt.show()
+    except:
+        print("Error while executing matplotlib.pyplot.show or while configuring the plot")
+
+
+if '-a' in sys.argv:
+    # plot results
+    import matplotlib.pyplot as plt
+
+    objects = list(map(str, sensitivity.keys()))
+    values = list(map(lambda s: np.abs(float(s)), sensitivity.values()))
+    y_pos = np.arange(len(objects))
+
+    try:
+        plt.bar(y_pos, values, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('Sensitivity')
+        plt.title('Parameter')
+        plt.ylim(0.9*np.min(values), 1.)
+
+        plt.show()
+    except:
+        print("Error while executing matplotlib.pyplot.show or while configuring the plot")
+
+
 if '-b' in sys.argv:
     # plot results
     import matplotlib.pyplot as plt
 
     objects = reaching_states
-    probability = list(map(lambda p: float(p.subs(parameters)), list(h_reaching.flat)))
+    values = list(map(lambda p: float(p.subs(parameters)), list(h_reaching.flat)))
     y_pos = np.arange(len(objects))
 
     try:
-        plt.bar(y_pos, probability, align='center', alpha=0.5)
+        plt.bar(y_pos, values, align='center', alpha=0.5)
         plt.xticks(y_pos, objects)
         plt.ylabel('Task Success Probability')
         plt.title('MC State')
-        plt.ylim(0.9*np.min(probability), 1.)
+        plt.ylim(0.9*np.min(values), 1.)
 
         plt.show()
     except:
