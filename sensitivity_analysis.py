@@ -13,6 +13,14 @@ import sys
 from collections import defaultdict
 
 
+if '-h' in sys.argv:
+    print(  "Optional arguments:\n"
+            "   -p x        plot graph of task success probability for parameter x\n"
+            "   -s x1 x2    plot 2D graph of task success probability for parameters x1, x2\n"
+            "   -b          plot task success probability for all reaching states\n"
+            )
+    sys.exit(0)
+
 # Parameters and their vaules
 parameters = dict()
 
@@ -129,17 +137,17 @@ for p in parameters.keys():
 
 if '-p' in sys.argv:
     from sympy.plotting import plot
-    
+
     # Get parameter to be plotted from argument
     arg_index = sys.argv.index('-p')
     p1 = Symbol(sys.argv[arg_index + 1])
     not_p1 = list(set(parameters.keys()) - set([p1]))
     f = h_i
-    
+
     # Substitute all parameters values except p1 in function h_i (renamed to f)
     for p in not_p1:
         f = f.subs(p, parameters[p])
-        
+
     try:
         plot(f, xlim=(0, 1), ylim=(0, 1))
     except:
@@ -153,7 +161,7 @@ if '-s' in sys.argv:
     p1, p2 = Symbol(sys.argv[arg_index + 1]), Symbol(sys.argv[arg_index + 2])
     not_p_1_p_2 = list(set(parameters.keys()) - set([p1, p2]))
     f = h_i
-    
+
     # Substitute all parameters values except p1 and p2 in function h_i (renamed to f)
     for p in not_p_1_p_2:
         f = f.subs(p, parameters[p])
@@ -169,14 +177,16 @@ if '-b' in sys.argv:
     import matplotlib.pyplot as plt
 
     objects = reaching_states
-    probability = np.array(h_reaching)[0]
-
+    probability = list(map(lambda p: float(p.subs(parameters)), list(h_reaching.flat)))
     y_pos = np.arange(len(objects))
-    plt.bar(y_pos, probability, align='center', alpha=0.5)
-    plt.xticks(y_pos, objects)
-    plt.ylabel('Task Success Probability')
-    plt.title('MC State')
-    plt.ylim(0.9*np.min(probability), 1.)
 
-    plt.show()
-    
+    try:
+        plt.bar(y_pos, probability, align='center', alpha=0.5)
+        plt.xticks(y_pos, objects)
+        plt.ylabel('Task Success Probability')
+        plt.title('MC State')
+        plt.ylim(0.9*np.min(probability), 1.)
+
+        plt.show()
+    except:
+        print("Error while executing matplotlib.pyplot.show or while configuring the plot")
