@@ -58,15 +58,14 @@ outcome_prob['GG']['S']  = .9*(1 - p_GG_F2)
 outcome_prob['GG']['F1'] = .1*(1 - p_GG_F2)
 outcome_prob['GG']['F2'] = p_GG_F2
 
-values = list()
+print("\nProbability of functionality and outcome:")
+print("Fun.".ljust(5, ' '), "Out.".ljust(5, ' '), "Value".ljust(10, ' '), "Function of parameters")
 for f, outcomes in outcome_prob.items():
     for o, p in outcomes.items():
         try:
-            print(f, o, float(p.subs(parameters)))
+            print(f.ljust(5, ' '), o.ljust(5, ' '), str(float(p.subs(parameters)))[0:9].ljust(10, ' '), str(p))
         except:
-            print(f, o, p)
-
-print(values)
+            print(f.ljust(5, ' '), o.ljust(5, ' '), p)
 
 # Build the Markov chain graph m and the parametric transition matrix P
 N = 22
@@ -142,6 +141,7 @@ h[x_s] = 1.
 h_i = h[x_i]
 
 # Compute partial derivatites for each parameter
+print("\nSensitivity and its absolute value, for each parameter:")
 sensitivity = dict()
 for p in parameters.keys():
     sensitivity[p] = diff(h_i, p).subs(parameters)
