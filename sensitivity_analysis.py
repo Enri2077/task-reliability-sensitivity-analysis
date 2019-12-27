@@ -169,7 +169,7 @@ if '-g' in sys.argv:
     from sympy.plotting import plot3d_parametric_surface
 
     # Get the two parameters to be plotted from arguments
-    arg_index = sys.argv.index('-s')
+    arg_index = sys.argv.index('-g')
     p1, p2 = Symbol(sys.argv[arg_index + 1]), Symbol(sys.argv[arg_index + 2])
     not_p_1_p_2 = list(set(parameters.keys()) - set([p1, p2]))
     f = h_i
